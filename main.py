@@ -2,15 +2,23 @@ import io
 import sys
 import logging
 import asyncio
+
 import qrcode
 from qrcode.constants import ERROR_CORRECT_L
 
+import cv2
+import numpy as np
+from qreader import QReader
+from PIL import Image
+
 from aiogram import Dispatcher, Bot, F
 from aiogram.types import Message, BufferedInputFile, InlineQuery, InlineQueryResultPhoto
+from aiogram.filters import Command
 
 from urllib.parse import quote
 
 bot_dispatcher = Dispatcher()
+qreader = QReader()
 with open(".env", "r") as file:
     buffer = file.read()
     line_pos = buffer.find("BOT_TOKEN")
@@ -57,6 +65,27 @@ async def inlineText2qr(inline_query: InlineQuery):
         description=f"Сгенерировать QR для «{query_text[:50]}»"
     )
     await inline_query.answer([result], cache_time=10)
+
+# Convert a QR code into text and send it back to user
+@bot_dispatcher.message(F.photo)
+async def qr2text(message: Message):
+    photo = message.photo[-1]
+    file_info = await message.bot.get_file(photo.file_id)
+    downloaded = await message.bot.download_file(file_info.file_path)
+    # Конвертируем байты в изображение OpenCV (numpy array)
+    image_bytes = downloaded.read()
+    pil_image = Image.open(io.BytesIO(image_bytes))
+    opencv_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+
+    # Распознаём QR-код
+    decoded_text = qreader.detect_and_decode(image=opencv_image)
+
+    if decoded_text and decoded_text[0] is not None:
+        text = decoded_text[0]
+        await message.answer(f"QR:")
+        await message.answer(f"{text}")
+    else:
+        await message.answer("Not recognizable")
 
 async def main() -> None:
     bot = Bot(TOKEN)
