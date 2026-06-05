@@ -20,7 +20,6 @@ with open(".env", "r") as file:
 @bot_dispatcher.message(F.text)
 async def text2qr(message: Message):
     qr = qrcode.QRCode(
-        version=1,
         error_correction=ERROR_CORRECT_L,
     )
     qr.add_data(message.text)
