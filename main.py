@@ -72,12 +72,11 @@ async def qr2text(message: Message):
     photo = message.photo[-1]
     file_info = await message.bot.get_file(photo.file_id)
     downloaded = await message.bot.download_file(file_info.file_path)
-    # Конвертируем байты в изображение OpenCV (numpy array)
+
     image_bytes = downloaded.read()
     pil_image = Image.open(io.BytesIO(image_bytes))
     opencv_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
 
-    # Распознаём QR-код
     decoded_text = qreader.detect_and_decode(image=opencv_image)
 
     if decoded_text and decoded_text[0] is not None:
