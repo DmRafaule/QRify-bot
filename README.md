@@ -3,7 +3,7 @@
 ## Description
 
 The QRify bot is made for generating QR codes and reading existing ones from photos and transforming them into readable text.
-More detailed descriptions you may find on the website of the developer, [QR to text and vice versa.](https://timthewebmaster.com/en/tools/)
+More detailed descriptions you may find on the website of the developer, [QR to text and vice versa.](https://timthewebmaster.com/en/tools/qr-bot/)
 
 ## Basic features
 
